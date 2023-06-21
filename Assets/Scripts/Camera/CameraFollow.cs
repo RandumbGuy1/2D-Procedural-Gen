@@ -9,7 +9,8 @@ public class CameraFollow : MonoBehaviour {
     private Vector2 vel = Vector2.zero;
 
     void LateUpdate() {
-        Vector2 newPos = Vector2.SmoothDamp(transform.position, (Vector2) target.position + offset, ref vel, smoothTime);
+        Vector2 newPos = smoothTime != 0 ? 
+            Vector2.SmoothDamp(transform.position, (Vector2) target.position + offset, ref vel, smoothTime) : (Vector2)target.position + offset;
         transform.position = newPos;
     }
 }

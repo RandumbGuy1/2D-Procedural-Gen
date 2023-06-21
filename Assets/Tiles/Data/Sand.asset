@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd3f81f1591c293429b50ebc1001365d, type: 3}
+  m_Name: Sand
+  m_EditorClassIdentifier: 
+  associatedTiles:
+  - {fileID: 11400000, guid: 7d8296ee301443a42b08f1a8b6c5d5ff, type: 2}
+  - {fileID: 11400000, guid: 0af9a98850d28c3408066686deb0c8c6, type: 2}
+  tileName: Sand
+  timeToMine: 0.5
+  strengthRequred: 1
+  mineClips:
+  - {fileID: 8300000, guid: 8022ef638b4854e4094ab7a82efb208c, type: 3}
+  - {fileID: 8300000, guid: 6b7bbe83f70c8034b8f15f788b04cb6c, type: 3}
+  - {fileID: 8300000, guid: 43434d8ddbd887641af9e6c712f4c899, type: 3}
+  breakClip: {fileID: 8300000, guid: e3a0cc74f7f77524c88c42f4f8bc1216, type: 3}
+  breakFX: {fileID: 5758038753787624824, guid: 342576e61e0dc784086d9e28f825acdc, type: 3}
+  rarity: 1
+  friction: 1
+  drop: {fileID: 3914024391254837711, guid: e6fcf2d9a796eea43bba81d1c4690b82, type: 3}

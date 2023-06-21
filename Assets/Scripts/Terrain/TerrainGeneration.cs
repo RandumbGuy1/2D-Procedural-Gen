@@ -1,76 +1,82 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.Tilemaps;
 
 public class TerrainGeneration : MonoBehaviour {
 
-    [Header("Block Settings")]
-    [SerializeField] private int grassLayer;
-    [SerializeField] private Tile grass;
-    [SerializeField] private int dirtLayer;
-    [SerializeField] private Tile dirt;
-    [SerializeField] private Tile stone;
-    [SerializeField] private Tile tallGrass;
-    [SerializeField] private int tallGrassChance;
-
-    [Header("Tree Settings")]
-    [SerializeField] private Tile treeTrunk;
-    [SerializeField] private Tile treeLeaf;
-    [SerializeField] private int treeChance;
-    [SerializeField] private int maxTreeHeight;
-    [SerializeField] private int minTreeHeight;
-
     [Header("Refrences Settings")]
     [SerializeField] private Grid grid;
     [SerializeField] private Tilemap mapPrefab;
-    [SerializeField] private Tilemap treeMap;
+    public Grid Grid => grid;
 
-    [Header("Ground Generation Settings")]
-    [SerializeField] private int chunkSize;
-    [SerializeField] private float heightMultiplier;
-    [SerializeField] private float heightAddition;
-    [SerializeField] private Vector2Int worldSize;
-    [SerializeField] private float caveFrequency;
-    [SerializeField] private float surfaceFrequency;
-    [SerializeField] private float seed;
-    [SerializeField] private Texture2D noiseTexture;
+    [Header("World Settings")]
     [SerializeField] private Tilemap[] worldChunks;
 
-    [System.Serializable]
-    public struct OreSettings {
-        [SerializeField] private Tile oreTile;
-        [SerializeField] private float oreFrequency;
-        [SerializeField] private float oreSize;
-        [SerializeField] private float oreSpawnHeight;
-        [SerializeField] private Texture2D oreNoiseTexture;
+    [SerializeField] private float seed;
+    [SerializeField] private int chunkSize;
+    [SerializeField] private Vector2Int worldSize;
+    [SerializeField] private Vector2 worldOffset;
+    public Vector2Int WorldSize => worldSize;
 
-        public Tile OreTile => oreTile;
-        public float OreFrequency => oreFrequency;
-        public float OreSize => oreSize;
-        public float OreSpawnHeight => oreSpawnHeight;
-        public Texture2D OreNoiseTexture { get => oreNoiseTexture; set { oreNoiseTexture = value; } }
-    }
+    [Header("Shadow Settings")]
+    [SerializeField] private GameObject shadowPrefab;
+    [SerializeField] private bool enableShadows = false;
+
+    [Header("Biomes")]
+    [SerializeField] private BasicBiome forestBiome = new BasicBiome();
+    [SerializeField] private BasicBiome snowBiome = new BasicBiome();
+    [SerializeField] private BasicBiome desertBiome = new BasicBiome();
+
+    public IBiome[] Biomes { get; private set; }
+
+    [Header("Biome Generation Settings")]
+    [SerializeField] private bool validateBiomes = false;
+    [SerializeField] private Texture2D biomeNoiseTexture;
+    [SerializeField] private float biomeFrequency;
+    [SerializeField] private Gradient biomeColors;
+    public Gradient BiomeColors => biomeColors;
+    public Texture2D BiomeNoiseTexture => biomeNoiseTexture;
 
     [Header("Ore Generation Settings")]
-    [SerializeField] private OreSettings[] ores = new OreSettings[0];
+    [SerializeField] private bool validateOres = false;
+    [SerializeField] private OreSettings[] baseOres = new OreSettings[0];
+    public OreSettings[] BaseOres => baseOres;
+
+    public static TerrainGeneration Instance { get; private set; }
+
+    void Awake() => Instance = this;
 
     void OnValidate() {
-        for (int i = 0; i < ores.Length; i++) 
-            ores[i].OreNoiseTexture = GenerateNoiseTexture(ores[i].OreFrequency, ores[i].OreSize);
+        Biomes = new IBiome[3] { forestBiome, snowBiome, desertBiome };
+
+        if (validateBiomes) 
+            biomeNoiseTexture = GenerateNoiseTexture(biomeColors, new NoiseTextureParams(biomeFrequency, 0f, Color.black, true, false));
+
+        if (validateOres) 
+            for (int i = 0; i < baseOres.Length; i++)
+                baseOres[i].OreNoiseTexture = GenerateNoiseTexture(new NoiseTextureParams(baseOres[i].OreFrequency, baseOres[i].OreSize, Color.white, true));
+
+        foreach (IBiome biome in Biomes) 
+            if (biome.UpdateInInspector) biome.Start();
     }
 
     void Start() {
-        for (int i = 0; i < ores.Length; i++) {
-            seed = Random.Range(-1000000, 100000);
-            ores[i].OreNoiseTexture = GenerateNoiseTexture(ores[i].OreFrequency, ores[i].OreSize);
-        }
+        Biomes = new IBiome[3] { forestBiome, snowBiome, desertBiome };
+
+        for (int i = 0; i < baseOres.Length; i++)
+            baseOres[i].OreNoiseTexture = GenerateNoiseTexture(new NoiseTextureParams(baseOres[i].OreFrequency, baseOres[i].OreSize, Color.white, true));
+
+        biomeNoiseTexture = GenerateNoiseTexture(biomeColors, new NoiseTextureParams(biomeFrequency, 0f, Color.black, true, false));
+        foreach (IBiome biome in Biomes) biome.Start();
 
         seed = Random.Range(-1000000, 100000);
         CreateChunks();
-        GenerateTerrain();
 
-        grid.transform.position -= new Vector3(worldSize.x * 0.5f, heightAddition, 0);
+        foreach (IBiome biome in Biomes) biome.GenerateTerrain(seed);
+
+        grid.transform.position += (Vector3) worldOffset;
     }
 
     private void CreateChunks() {
@@ -86,12 +92,12 @@ public class TerrainGeneration : MonoBehaviour {
         }
     }
 
-    private Texture2D GenerateNoiseTexture(float frequency) {
+    public Texture2D GenerateNoiseTexture(float frequency) {
         Texture2D noiseTexture = new Texture2D(worldSize.x, worldSize.y);
 
         for (int x = 0; x < noiseTexture.width; x++) {
             for (int y = 0; y < noiseTexture.height; y++) {
-                float v = Mathf.PerlinNoise(x * frequency, y * frequency);
+                float v = Mathf.PerlinNoise((seed + x) * frequency, (seed + y) * frequency);
                 noiseTexture.SetPixel(x, y, new Color(v, v, v));
             }
         }
@@ -100,16 +106,18 @@ public class TerrainGeneration : MonoBehaviour {
         return noiseTexture;
     }
 
-    private Texture2D GenerateNoiseTexture(float frequency, float threshold)
-    {
+    public Texture2D GenerateNoiseTexture(NoiseTextureParams parameters) {
+        float seed = this.seed;
+        if (parameters.NewSeed) seed = Random.Range(-1000000, 100000);
+
         Texture2D noiseTexture = new Texture2D(worldSize.x, worldSize.y);
 
         for (int x = 0; x < noiseTexture.width; x++) {
             for (int y = 0; y < noiseTexture.height; y++) {
-                float v = Mathf.PerlinNoise(x * frequency, y * frequency);
+                float v = Mathf.PerlinNoise((seed + x) * parameters.Frequency, (parameters.IgnoreY ? seed : seed + y) * parameters.Frequency);
                 
-                if (v > threshold) noiseTexture.SetPixel(x, y, Color.black);
-                else noiseTexture.SetPixel(x, y, Color.white);
+                if (v > parameters.Threshold) noiseTexture.SetPixel(x, y, Color.black);
+                else noiseTexture.SetPixel(x, y, parameters.Color);
             }
         }
 
@@ -117,55 +125,97 @@ public class TerrainGeneration : MonoBehaviour {
         return noiseTexture;
     }
 
-    private void GenerateTerrain() {
-        noiseTexture = GenerateNoiseTexture(caveFrequency);
+    public Texture2D GenerateNoiseTexture(Gradient gradient, NoiseTextureParams parameters) {
+        float seed = this.seed;
+        if (parameters.NewSeed) seed = Random.Range(-1000000, 100000);
+
+        Texture2D noiseTexture = new Texture2D(worldSize.x, worldSize.y);
 
         for (int x = 0; x < noiseTexture.width; x++) {
-            float height = Mathf.PerlinNoise((x + seed) * surfaceFrequency, seed * surfaceFrequency) * heightMultiplier + heightAddition;
-            for (int y = 0; y < height; y++) {
-                if (noiseTexture.GetPixel(x, y).r > 0.8f) continue;
-
-                Tile tileToChoose;
-                if (y > height - grassLayer) {
-                    tileToChoose = grass;
-
-                    int roll = Random.Range(1, 100);
-                    if (roll < treeChance)
-                    {
-                        GenerateTree(new Vector2Int(x, y));
-                    }
-                    else if (roll < tallGrassChance) PlaceTile(treeMap, tallGrass, new Vector2Int(x, y + 1));
-                }
-                else if (y > height - dirtLayer) tileToChoose = dirt;
-                else {
-                    tileToChoose = stone;
-
-                    foreach (OreSettings ore in ores) {
-                        if (y > height - ore.OreSpawnHeight) continue;
-                        if (ore.OreNoiseTexture.GetPixel(x, y) == Color.white) tileToChoose = ore.OreTile;
-                    }
-                }
-
-                float chunkCoord = (Mathf.Round(x / chunkSize) * chunkSize) / chunkSize;
-                PlaceTile(worldChunks[(int) chunkCoord], tileToChoose, new Vector2Int(x, y));
+            for (int y = 0; y < noiseTexture.height; y++) {
+                float v = Mathf.PerlinNoise((seed + x) * parameters.Frequency, (parameters.IgnoreY ? seed : seed + y) * parameters.Frequency);
+                noiseTexture.SetPixel(x, y, gradient.Evaluate(v));
             }
         }
+
+        noiseTexture.Apply();
+        return noiseTexture;
     }
 
-    public void GenerateTree(Vector2Int pos) {
-        int height = Random.Range(minTreeHeight, maxTreeHeight);
+    public Tilemap GetChunkMap(float x) {
+        int coords = (int)Mathf.Floor(x / chunkSize);
 
-        for (int i = 1; i <= height; i++) PlaceTile(treeMap, treeTrunk, new Vector2Int(pos.x, pos.y + i));
-
-        for (int i = height + 1; i < height + 4; i++) {
-            PlaceTile(treeMap, treeLeaf, new Vector2Int(pos.x, pos.y + i));
-
-            if (Random.Range(1, 10) < 9) PlaceTile(treeMap, treeLeaf, new Vector2Int(pos.x - 1, pos.y + i));
-            if (Random.Range(1, 10) < 9) PlaceTile(treeMap, treeLeaf, new Vector2Int(pos.x + 1, pos.y + i));
-        }
+        return worldChunks[coords];
     }
 
     public void PlaceTile(Tilemap map, Tile tile, Vector2Int pos) {
         map.SetTile(new Vector3Int(pos.x, pos.y), tile);
+    }
+
+    private bool startShadows = true;
+    public void PlaceTileWithShadow(Tilemap map, Tile tile, Vector2Int pos)
+    {
+        map.SetTile(new Vector3Int(pos.x, pos.y), tile);
+
+        if (!enableShadows) return;
+
+        Transform shadow = Instantiate(shadowPrefab, grid.transform).transform;
+        shadow.localPosition = new Vector3(pos.x + 0.5f, pos.y + 0.5f, 0f) * 0.5f;
+
+        if (startShadows) {
+            grid.gameObject.AddComponent<CompositeShadowCaster2D>();
+            startShadows = false;
+        }
+    }
+
+    public Vector3Int GetClosestTilePosInMap(Vector3 pos, Tilemap map) {
+        Vector3Int closestTilePos = new Vector3Int(0, 0);
+        for (int x = map.cellBounds.min.x; x < map.cellBounds.max.x; x++) {
+            for (int y = map.cellBounds.min.y; y < map.cellBounds.max.y; y++) {
+                Vector3Int testPos = new Vector3Int(x, y, 0);
+                TileBase tile = map.GetTile(testPos);
+                if (tile == null) continue;
+
+                closestTilePos = (pos - testPos).sqrMagnitude < (pos - closestTilePos).sqrMagnitude ? testPos : closestTilePos;
+            }
+        }
+
+        return closestTilePos;
+    }
+}
+
+[System.Serializable]
+public struct OreSettings
+{
+    [SerializeField] private string oreName;
+    [SerializeField] private Tile oreTile;
+    [SerializeField] private float oreFrequency;
+    [SerializeField] private float oreSize;
+    [SerializeField] private float oreSpawnHeight;
+    [SerializeField] private Texture2D oreNoiseTexture;
+
+    public string OreName => oreName;
+    public Tile OreTile => oreTile;
+    public float OreFrequency => oreFrequency;
+    public float OreSize => oreSize;
+    public float OreSpawnHeight => oreSpawnHeight;
+    public Texture2D OreNoiseTexture { get => oreNoiseTexture; set { oreNoiseTexture = value; } }
+}
+
+public struct NoiseTextureParams
+{
+    public float Frequency { get; private set; }
+    public float Threshold { get; private set; }
+    public Color Color { get; private set; }
+    public bool NewSeed { get; private set; }
+    public bool IgnoreY { get; private set; }
+
+    public NoiseTextureParams(float frequency, float threshold, Color color, bool newSeed = false, bool ignoreY = false)
+    {
+        Frequency = frequency;
+        Threshold = threshold;
+        Color = color;
+        NewSeed = newSeed;
+        IgnoreY = ignoreY;
     }
 }

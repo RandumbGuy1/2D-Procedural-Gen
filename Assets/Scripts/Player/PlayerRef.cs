@@ -9,10 +9,12 @@ public class PlayerRef : MonoBehaviour {
     [SerializeField] private Camera _camera;
     [SerializeField] private MeshRenderer meshRenderer;
     [SerializeField] private CapsuleCollider2D capsuleCol;
+    [SerializeField] private PlayerItemController itemController;
 
     public CapsuleCollider2D CapsuleCol => capsuleCol;
     public MeshRenderer Rendering => meshRenderer;
     public PlayerMovement2D PlayerMovement => playerMovement;
     public PlayerInput PlayerInput => playerInput;
     public Camera PlayerCam => _camera;
+    public PlayerItemController ItemController => itemController;
 }

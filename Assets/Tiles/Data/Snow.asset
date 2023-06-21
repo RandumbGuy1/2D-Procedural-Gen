@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd3f81f1591c293429b50ebc1001365d, type: 3}
+  m_Name: Snow
+  m_EditorClassIdentifier: 
+  associatedTiles:
+  - {fileID: 11400000, guid: c9b49ac341fad214eb20117b745b3a98, type: 2}
+  - {fileID: 11400000, guid: 073cfbf5fd7610741b2f120b3092467e, type: 2}
+  tileName: Snow
+  timeToMine: 0.7
+  strengthRequred: 1
+  mineClips:
+  - {fileID: 8300000, guid: 8022ef638b4854e4094ab7a82efb208c, type: 3}
+  - {fileID: 8300000, guid: 6b7bbe83f70c8034b8f15f788b04cb6c, type: 3}
+  - {fileID: 8300000, guid: 43434d8ddbd887641af9e6c712f4c899, type: 3}
+  breakClip: {fileID: 8300000, guid: 5ebbf0fb7d27bf446afe86d917e1a462, type: 3}
+  breakFX: {fileID: 5758038753787624824, guid: 596874ca9338fe241a25e3b35b864cf0, type: 3}
+  rarity: 1
+  friction: 1
+  drop: {fileID: 3914024391254837711, guid: 0b049adb1ad85594eac5d65c5c46d14f, type: 3}

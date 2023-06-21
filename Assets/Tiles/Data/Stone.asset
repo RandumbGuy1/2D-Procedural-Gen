@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd3f81f1591c293429b50ebc1001365d, type: 3}
+  m_Name: Stone
+  m_EditorClassIdentifier: 
+  associatedTiles:
+  - {fileID: 11400000, guid: 19bd0ad754fab1f4d955156f983e4b7c, type: 2}
+  - {fileID: 11400000, guid: 20f2dfde02253b147a0c2fceb3261a26, type: 2}
+  - {fileID: 11400000, guid: ca9977b37cb214b419093c9fb9a553ff, type: 2}
+  - {fileID: 11400000, guid: 6fb40617ba5718b49badc041d2bd967e, type: 2}
+  - {fileID: 11400000, guid: aae690f93aebd164ea95cbb5550accde, type: 2}
+  - {fileID: 11400000, guid: 444c56f924fbaa54e8ce60db5b96b322, type: 2}
+  tileName: Stone
+  timeToMine: 1.5
+  strengthRequred: 1
+  mineClips:
+  - {fileID: 8300000, guid: 7bfd0eecf8fbff343a51aaf750aaa437, type: 3}
+  - {fileID: 8300000, guid: 31ae78ad541b7804f92183680f91e374, type: 3}
+  - {fileID: 8300000, guid: cdc8784d5b543374e94f6bfb8f0371a3, type: 3}
+  breakClip: {fileID: 8300000, guid: 43434d8ddbd887641af9e6c712f4c899, type: 3}
+  breakFX: {fileID: 5758038753787624824, guid: c3be3a10bbea37c40a68cb90383180fc, type: 3}
+  rarity: 1
+  friction: 1
+  drop: {fileID: 3914024391254837711, guid: f57bc9ffbd10c78479741860afd5306a, type: 3}

@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd3f81f1591c293429b50ebc1001365d, type: 3}
+  m_Name: Dirt
+  m_EditorClassIdentifier: 
+  associatedTiles:
+  - {fileID: 11400000, guid: 66e2ed2908fb0104897536ef04eb7827, type: 2}
+  - {fileID: 11400000, guid: 9c227d60880519f41aa2eb2d6f33bf52, type: 2}
+  tileName: Dirt
+  timeToMine: 0.7
+  strengthRequred: 1
+  mineClips:
+  - {fileID: 8300000, guid: 8022ef638b4854e4094ab7a82efb208c, type: 3}
+  - {fileID: 8300000, guid: 6b7bbe83f70c8034b8f15f788b04cb6c, type: 3}
+  - {fileID: 8300000, guid: 43434d8ddbd887641af9e6c712f4c899, type: 3}
+  breakClip: {fileID: 8300000, guid: 8022ef638b4854e4094ab7a82efb208c, type: 3}
+  breakFX: {fileID: 5758038753787624824, guid: 5a1aa3f982f4d1f4285f46a5ab1cdad2, type: 3}
+  rarity: 1
+  friction: 1
+  drop: {fileID: 3914024391254837711, guid: fd39bb63dce9c364f8c5fb848bdffbba, type: 3}

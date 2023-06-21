@@ -67,7 +67,7 @@ public class PlayerMovement2D : MonoBehaviour {
 
     void FixedUpdate() {
         ApplyFriction();
-        HoverOffGround(CalculateVault());
+        HoverOffGround(0f);
         UpdateUprightForce();
 
         Magnitude = rb.velocity.magnitude;
@@ -134,7 +134,7 @@ public class PlayerMovement2D : MonoBehaviour {
         float playerHeight = player.CapsuleCol.size.y;
         Vector3 bufferPosition = transform.position + (Vector3.right * bufferOffset) + (0.5f * playerHeight * Vector3.down);
 
-        RaycastHit2D hit = Physics2D.Raycast(bufferPosition, Vector3.down, rideHeight, environment);
+        RaycastHit2D hit = Physics2D.CircleCast(bufferPosition, 0.2f, Vector3.down, rideHeight, environment);
         bool buffer = hit.collider != null;
 
         Grounded = Physics2D.CircleCast(transform.position, 0.3f, Vector3.down, rideHeight, environment) || buffer;

@@ -17,15 +17,17 @@ public class PlayerInput : MonoBehaviour {
     public event ReceieveBoolInput OnCrouchInput;
     public event ReceieveBoolInput OnInteractInput;
     public event ReceieveBoolInput OnDialogueInput;
+    public event ReceieveBoolInput OnInventoryOpenInput;
     public event ReceieveIntInput OnDialogueOptionsInput;
 
-    public event ReceieveIntInput OnClubSelectInput;
-    public event ReceieveBoolInput OnClubDropInput;
+    public event ReceieveIntInput OnItemSelectInput;
+    public event ReceieveBoolInput OnItemDropInput;
 
     public event ReceieveBoolInput OnPauseToggle;
 
     public event ReceieveIntInput OnMouseButtonDownInput;
     public event ReceieveIntInput OnMouseButtonInput;
+    public event ReceieveVector2Input OnMousePosition;
 
     [Header("Movement Keybinds")]
     [SerializeField] private KeyCode jumpKey;
@@ -38,6 +40,7 @@ public class PlayerInput : MonoBehaviour {
     [SerializeField] private List<KeyCode> dialogueOptionsKeys = new List<KeyCode>();
 
     [Header("Item Keybinds")]
+    [SerializeField] private KeyCode inventoryKey;
     [SerializeField] private KeyCode itemDropKey;
     [SerializeField] private List<KeyCode> itemSwitchKeys = new List<KeyCode>();
 
@@ -54,6 +57,9 @@ public class PlayerInput : MonoBehaviour {
 
     void Update() {
         OnPauseToggle?.Invoke(Input.GetKeyDown(pauseMenuKey));
+        OnInventoryOpenInput?.Invoke(Input.GetKeyDown(inventoryKey));
+
+        OnMousePosition?.Invoke(Input.mousePosition);
 
         OnMoveInput?.Invoke(new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")));
         OnMouseInput?.Invoke(new Vector2(Input.GetAxisRaw("Mouse Y"), Input.GetAxisRaw("Mouse X")));
@@ -66,9 +72,9 @@ public class PlayerInput : MonoBehaviour {
         OnMouseButtonInput?.Invoke(MouseButton());
 
         OnSwimSinkInput?.Invoke(Input.GetKey(sinkSwimKey));
-        OnInteractInput?.Invoke(Input.GetKeyDown(interactKey));
-        OnClubDropInput?.Invoke(Input.GetKeyDown(itemDropKey));
-        OnClubSelectInput?.Invoke(IterateKeyBinds(itemSwitchKeys));
+        OnInteractInput?.Invoke(Input.GetKey(interactKey));
+        OnItemDropInput?.Invoke(Input.GetKeyDown(itemDropKey));
+        OnItemSelectInput?.Invoke(IterateKeyBinds(itemSwitchKeys));
         OnDialogueInput?.Invoke(Input.GetKeyDown(dialogueKey));
         OnDialogueOptionsInput?.Invoke(IterateKeyBinds(dialogueOptionsKeys));
     }
